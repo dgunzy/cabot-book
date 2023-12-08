@@ -13,6 +13,9 @@ public class User {
         this.name = name;
         this.balance = balance;
         this.kindeId = kindeId;
+        pendingBets = new ArrayList<>();
+        approvedBets = new ArrayList<>();
+        gradedBets = new ArrayList<>();
     }
 
 
@@ -28,10 +31,38 @@ public class User {
 
     private ArrayList<PlacedBet> gradedBets = null;
 
+    public void viewPendingBets() {
+        for (PlacedBet pendingBet : pendingBets) {
+            System.out.println(pendingBet.getKey() + pendingBet.getWager());
+        }
+    }
+    public void viewApprovedBets() {
+        for (PlacedBet approvedBet : approvedBets) {
+            System.out.println(approvedBet.getKey() + approvedBet.getWager());
+        }
+    }
+    public void viewGradedBets() {
+        for (PlacedBet gradedBet : gradedBets) {
+            System.out.println(gradedBet.getKey() + gradedBet.getWager());
+        }
+    }
+
+    public ArrayList<PlacedBet> getPendingBets() {
+        return pendingBets;
+    }
+
+    public ArrayList<PlacedBet> getApprovedBets() {
+        return approvedBets;
+    }
+
+    public ArrayList<PlacedBet> getGradedBets() {
+        return gradedBets;
+    }
 
     public void addBetToPending(String betKey, Double odds, int wager) {
         PlacedBet newBet = new PlacedBet(betKey, odds, wager);
         this.balance -= wager;
+        pendingBets.add(newBet);
     }
 
     public void approvePendingBet(String betname) {

@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Bet {
+    public Bet(String name) {
+        this.name = name;
+        betOdds = new HashMap<>();
+    }
 
     private String name;
 
@@ -19,11 +23,24 @@ public class Bet {
     private HashMap<String, Double> betOdds;
 
     public void addBetOptionAmerican(String betSubject, Double oddsForSubjectAmerican) {
-        betOdds.put(betSubject, oddsWinDecimal(oddsForSubjectAmerican));
+
+        this.betOdds.put(betSubject, oddsWinDecimal(oddsForSubjectAmerican));
+    }
+
+    public Double getBetOddsDecimal(String betSubject) {
+        return this.betOdds.get(betSubject);
     }
 
 
     private void clearOdds() {
-        betOdds.clear();
+        this.betOdds.clear();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
