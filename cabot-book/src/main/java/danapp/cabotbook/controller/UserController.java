@@ -3,7 +3,9 @@ package danapp.cabotbook.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import danapp.cabotbook.Auth.AppConfig;
 import danapp.cabotbook.bets.Bet;
+import danapp.cabotbook.globals.GlobalBetsList;
 import danapp.cabotbook.model.User;
 
 import danapp.cabotbook.people.UserApp;
@@ -11,6 +13,7 @@ import danapp.cabotbook.repository.UserRepository;
 import danapp.cabotbook.resource.UserRequestFromNode;
 import danapp.cabotbook.globals.GlobalUserList;
 import org.springframework.beans.BeanUtils;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,34 +33,44 @@ public class UserController {
     }
 
 
-    @GetMapping("/users")
-    public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(this.userRepository.findAll());
-    }
 
-    @PostMapping("/adduser")
-    public ResponseEntity<User> createUser(@RequestBody String jsonData) {
+
+    @GetMapping("/users")
+    public ResponseEntity<String> getAllUsers( @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) throws JsonProcessingException {
+        try {
+            if(!Objects.equals(apiKey, AppConfig.getApiKey())) {
+                return ResponseEntity.status(401).body(null);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(null);
+        }
+        ArrayList<UserApp> globalUserLists = GlobalUserList.getInstance().getUsersOnApp();
+
+        System.out.println(globalUserLists.size());
+
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            UserRequestFromNode userRequestFromNode = objectMapper.readValue(jsonData, UserRequestFromNode.class);
+            String jsonUsers = objectMapper.writeValueAsString(globalUserLists);
+            System.out.println(jsonUsers);
 
-            User user = new User();
-            System.out.println(userRequestFromNode.getGiven_name());
-            user.setName(userRequestFromNode.getGiven_name());
-            user.setBalance(0);
-            user.setKindeId(userRequestFromNode.getId());
-
-            return ResponseEntity.status(201).body(this.userRepository.save(user));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(400).body(null);
+            return ResponseEntity.status(200).body(jsonUsers);
+        } catch (Exception e) {
+            return  ResponseEntity.status(500).body("Error getting users");
         }
     }
 
 
 
+
     @PostMapping("/updatebalance/{balance}")
-    public ResponseEntity<String> updateUserBalance(@RequestBody String jsonData, @PathVariable int balance) throws JsonProcessingException {
+    public ResponseEntity<String> updateUserBalance(@RequestBody String jsonData, @PathVariable int balance, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) throws JsonProcessingException {
+        try {
+            if(!Objects.equals(apiKey, AppConfig.getApiKey())) {
+                return ResponseEntity.status(401).body(null);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(null);
+        }
         ObjectMapper objectMapper = new ObjectMapper();
         try {
         UserRequestFromNode userRequestFromNode = objectMapper.readValue(jsonData, UserRequestFromNode.class);
@@ -74,7 +87,14 @@ public class UserController {
     }
 
     @GetMapping("/users/{id}")
-    public ResponseEntity getUserById(@PathVariable String id) {
+    public ResponseEntity getUserById(@PathVariable String id, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
+        try {
+            if(!Objects.equals(apiKey, AppConfig.getApiKey())) {
+                return ResponseEntity.status(401).body(null);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(null);
+        }
 
         Optional<User> user = this.userRepository.findById(id);
 
@@ -85,7 +105,14 @@ public class UserController {
         }
     }
     @DeleteMapping("/userdelete/{id}")
-    public ResponseEntity deleteUserById(@PathVariable String id) {
+    public ResponseEntity deleteUserById(@PathVariable String id, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
+        try {
+            if(!Objects.equals(apiKey, AppConfig.getApiKey())) {
+                return ResponseEntity.status(401).body(null);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(null);
+        }
 
         Optional<User> user = this.userRepository.findById(id);
 
@@ -99,38 +126,34 @@ public class UserController {
 
 
     @PostMapping("/checkuser")
-    public ResponseEntity<User> checkUser(@RequestBody String jsonData) {
+    public ResponseEntity<UserApp> checkUser(@RequestBody String jsonData, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
+        try {
+            if(!Objects.equals(apiKey, AppConfig.getApiKey())) {
+                return ResponseEntity.status(401).body(null);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(null);
+        }
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             UserRequestFromNode userRequestFromNode = objectMapper.readValue(jsonData, UserRequestFromNode.class);
 
-            Optional<User> userMightExist = userRepository.findByKindeId(userRequestFromNode.getId());
-
-            if (userMightExist.isPresent()) {
-                User existingUser = userMightExist.get();
-                System.out.println("User found!");
-                return ResponseEntity.ok(existingUser);
-
-            }
-
-            User newUser = new User();
-            newUser.setName(userRequestFromNode.getGiven_name());
-            newUser.setBalance(0);
-            newUser.setKindeId(userRequestFromNode.getId());
-            ArrayList<String> transactionArrayList = new ArrayList<>();
-            newUser.setTransactionHistory(transactionArrayList);
-
-            User savedUser = userRepository.save(newUser);
-
-            return ResponseEntity.status(201).body(savedUser);
+            UserApp user = loadUserApp(userRequestFromNode);
+            return ResponseEntity.status(201).body(user);
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
             return ResponseEntity.status(400).body(null);
         }
     }
 
     @PostMapping("/testbetlogic")
-    public void testBetLogic(@RequestBody String jsonData) {
+    public void testBetLogic(@RequestBody String jsonData, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
+        try {
+            if(!Objects.equals(apiKey, AppConfig.getApiKey())) {
+
+            }
+        } catch (Exception e) {
+            return;
+        }
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             UserRequestFromNode userRequestFromNode = objectMapper.readValue(jsonData, UserRequestFromNode.class);
@@ -139,39 +162,39 @@ public class UserController {
             UserApp dan = loadUserApp(userRequestFromNode);
 
 
-                Bet firstMatch  = new Bet("Ryan Mau");
-
-                firstMatch.addBetOptionAmerican("Mau", -150.0);
-
-                firstMatch.addBetOptionAmerican("Ryan", 125.0);
-
-
-                dan.addBetToPending("Mau", firstMatch.getBetOddsDecimal("Mau"), 50, "Mau vs Ryan");
-
-                System.out.println(dan.getBalance());
-                dan.viewPendingBets();
-
-                dan.approvePendingBet("Mau");
-
-                dan.viewPendingBets();
-                System.out.println("Approved Bets below");
-
-                dan.viewApprovedBets();
-
-                dan.winApprovedBet("Mau");
-
-                Thread.sleep(10000);
-
-
-
-                System.out.println("Graded bets below");
-
-
-
-                System.out.println("Transaction History string:" + dan.getTransactionHistory());
-
-
-                System.out.println(dan.getBalance());
+//                Bet firstMatch  = new Bet("Ryan Mau");
+//
+//                firstMatch.addBetOptionAmerican("Mau", -150.0);
+//
+//                firstMatch.addBetOptionAmerican("Ryan", 125.0);
+//
+//
+//                dan.addBetToPending("Mau", firstMatch.getBetOddsDecimal("Mau"), 50, "Mau vs Ryan");
+//
+//                System.out.println(dan.getBalance());
+//                dan.viewPendingBets();
+//
+//                dan.approvePendingBet("Mau");
+//
+//                dan.viewPendingBets();
+//                System.out.println("Approved Bets below");
+//
+//                dan.viewApprovedBets();
+//
+//                dan.winApprovedBet("Mau");
+//
+//                Thread.sleep(10000);
+//
+//
+//
+//                System.out.println("Graded bets below");
+//
+//
+//
+//                System.out.println("Transaction History string:" + dan.getTransactionHistory());
+//
+//
+//                System.out.println(dan.getBalance());
 
 
 
@@ -184,8 +207,6 @@ public class UserController {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
 
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -201,7 +222,11 @@ public class UserController {
         Optional<User> userMightExist = userRepository.findByKindeId(userRequestFromNode.getId());
         if(userMightExist.isPresent()) {
             User existingUser = userMightExist.get();
-            return UserApp.fromDatabaseModel(existingUser);
+
+            UserApp userToLoad = UserApp.fromDatabaseModel(existingUser);
+
+            GlobalUserList.getInstance().addUserToGlobalList(userToLoad);
+            return userToLoad;
         } else {
             User newUser = new User();
             newUser.setName(userRequestFromNode.getGiven_name());
@@ -212,24 +237,23 @@ public class UserController {
 
             try {
                 User savedUser = userRepository.save(newUser);
-                return UserApp.fromDatabaseModel(savedUser);
+                UserApp newUserInMemory =  UserApp.fromDatabaseModel(savedUser);
+                GlobalUserList.getInstance().addUserToGlobalList(newUserInMemory);
+                return newUserInMemory;
             } catch (Exception e) {
                 e.printStackTrace();
                 return new UserApp();
             }
-
-
-
         }
     }
 
 
-    public User updateUser(User userWithUpdate) {
+    public void updateUser(User userWithUpdate) {
         User userToUpdate = userRepository.findByKindeId(userWithUpdate.getKindeId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         BeanUtils.copyProperties(userWithUpdate, userToUpdate);
 
-        return userRepository.save(userToUpdate);
+        userRepository.save(userToUpdate);
 
     }
 

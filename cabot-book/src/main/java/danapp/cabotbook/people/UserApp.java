@@ -42,6 +42,15 @@ public class UserApp {
         return false;
     }
 
+    public void updateFrom(UserApp newUser) {
+        this.name = newUser.getName();
+        this.balance = newUser.getBalance();
+        this.kindeId = newUser.getKindeId();
+        this.pendingBets = (newUser.getPendingBets() != null) ? new ArrayList<>(newUser.getPendingBets()) : this.pendingBets;
+        this.approvedBets = (newUser.getApprovedBets() != null) ? new ArrayList<>(newUser.getApprovedBets()) : this.approvedBets;
+        this.gradedBets = (newUser.getGradedBets() != null) ? new ArrayList<>(newUser.getGradedBets()) : this.gradedBets;
+        this.transactionHistory = (newUser.getTransactionHistory() != null) ? new ArrayList<>(newUser.getTransactionHistory()) : this.transactionHistory;
+    }
 
 
     private String name;
@@ -53,6 +62,7 @@ public class UserApp {
     private ArrayList<PlacedBet> pendingBets ;
 
     private ArrayList<PlacedBet> approvedBets ;
+
 
     private ArrayList<String> gradedBets;
 
@@ -98,11 +108,11 @@ public class UserApp {
         }
     }
 
-    public void denyPendingBet(String description) {
+    public void denyPendingBet(String description, String horse) {
         Iterator<PlacedBet> iterator = pendingBets.iterator();
         while (iterator.hasNext()) {
             PlacedBet placedBet = iterator.next();
-            if(Objects.equals(placedBet.getUniqueDescription(), description)) {
+            if(Objects.equals(placedBet.getUniqueDescription(), description) && Objects.equals(placedBet.getKey(), horse)) {
                 this.balance += placedBet.getWager();
                 iterator.remove();
             }
@@ -122,7 +132,7 @@ public class UserApp {
             }
         }
     }
-    public void losePendingBet(String description) throws JsonProcessingException {
+    public void loseApprovedBet(String description) throws JsonProcessingException {
         Iterator<PlacedBet> iterator = approvedBets.iterator();
         while (iterator.hasNext()) {
             PlacedBet approvedBet = iterator.next();
@@ -142,6 +152,22 @@ public class UserApp {
     public void setTransactionHistory(ArrayList<String> transactionHistory) {
         this.transactionHistory = transactionHistory;
     }
+    public void setPendingBets(ArrayList<PlacedBet> pendingBets) {
+        this.pendingBets = pendingBets;
+    }
+
+    public void setApprovedBets(ArrayList<PlacedBet> approvedBets) {
+        this.approvedBets = approvedBets;
+    }
+
+    public ArrayList<String> getGradedBets() {
+        return gradedBets;
+    }
+
+    public void setGradedBets(ArrayList<String> gradedBets) {
+        this.gradedBets = gradedBets;
+    }
+
 
     public String getName() {
         return name;

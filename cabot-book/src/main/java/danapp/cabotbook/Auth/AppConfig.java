@@ -14,8 +14,8 @@ public class AppConfig {
         }
     }
 
-//    public static String getApiKey() {
-//        return properties.getProperty("api.key");
-//    }
+    public static String getApiKey() {
+        return properties.getProperty("api.key");
+    }
 
 }

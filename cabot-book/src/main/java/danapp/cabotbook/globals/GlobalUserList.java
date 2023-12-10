@@ -3,6 +3,7 @@ package danapp.cabotbook.globals;
 import danapp.cabotbook.people.UserApp;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class GlobalUserList {
     private static GlobalUserList instance;
@@ -25,6 +26,19 @@ public class GlobalUserList {
     }
 
     public void addUserToGlobalList(UserApp userApp) {
-        usersOnApp.add(userApp);
+        if (usersOnApp == null) {
+            usersOnApp = new ArrayList<>();
+        }
+
+        Optional<UserApp> existingUser = usersOnApp.stream()
+                .filter(u -> u.getKindeId().equals(userApp.getKindeId()))
+                .findFirst();
+
+        if (existingUser.isPresent()) {
+            UserApp userToUpdate = existingUser.get();
+            userToUpdate.updateFrom(userApp);
+        } else {
+            usersOnApp.add(userApp);
+        }
     }
 }
