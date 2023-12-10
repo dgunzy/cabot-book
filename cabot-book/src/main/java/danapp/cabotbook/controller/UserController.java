@@ -62,8 +62,8 @@ public class UserController {
 
 
 
-    @PostMapping("/updatebalance/{balance}")
-    public ResponseEntity<String> updateUserBalance(@RequestBody String jsonData, @PathVariable int balance, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) throws JsonProcessingException {
+    @PostMapping("/updatebalance/{balance}/{kindeId}")
+    public ResponseEntity<String> updateUserBalance(@RequestBody String jsonData, @PathVariable int balance,@PathVariable String kindeId,  @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) throws JsonProcessingException {
         try {
             if(!Objects.equals(apiKey, AppConfig.getApiKey())) {
                 return ResponseEntity.status(401).body(null);
@@ -71,13 +71,17 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.status(400).body(null);
         }
-        ObjectMapper objectMapper = new ObjectMapper();
+
         try {
-        UserRequestFromNode userRequestFromNode = objectMapper.readValue(jsonData, UserRequestFromNode.class);
-        UserApp userToUpdate = loadUserApp(userRequestFromNode);
-        userToUpdate.setBalance(userToUpdate.getBalance() + balance );
-        updateUser(userToUpdate.databaseUserFromUserApp());
-        String responseBody =  "Success updating user balance! Balance is " + userToUpdate.getBalance();
+            ObjectMapper objectMapper = new ObjectMapper();
+            UserRequestFromNode userRequestFromNode = objectMapper.readValue(jsonData, UserRequestFromNode.class);
+            String adminName = userRequestFromNode.getGiven_name();
+            UserApp userToUpdate = loadUserAppWithId(kindeId);
+            userToUpdate.setBalance(userToUpdate.getBalance() + balance );
+            userToUpdate.getTransactionHistory().add("Your account was manually ajusted " + balance + " by " + adminName);
+            GlobalUserList.getInstance().addUserToGlobalList(userToUpdate);
+            updateUser(userToUpdate.databaseUserFromUserApp());
+            String responseBody =  "Success updating user balance! Balance is " + userToUpdate.getBalance();
         return ResponseEntity.status(HttpStatus.OK).body(responseBody);
         } catch (Exception e) {
             e.getLocalizedMessage();
@@ -244,6 +248,28 @@ public class UserController {
                 e.printStackTrace();
                 return new UserApp();
             }
+        }
+    }
+    public UserApp loadUserAppWithId(String kindeId) {
+        ArrayList<UserApp> globalUserList = GlobalUserList.getInstance().getUsersOnApp();
+
+        if (UserApp.doesUserExist(globalUserList, kindeId)) {
+            for (UserApp globalUser : globalUserList) {
+                if (Objects.equals(globalUser.getKindeId(), kindeId)) {
+                    return globalUser;
+                }
+            }
+        }
+        Optional<User> userMightExist = userRepository.findByKindeId(kindeId);
+        if (userMightExist.isPresent()) {
+            User existingUser = userMightExist.get();
+
+            UserApp userToLoad = UserApp.fromDatabaseModel(existingUser);
+
+            GlobalUserList.getInstance().addUserToGlobalList(userToLoad);
+            return userToLoad;
+        } else {
+            return null;
         }
     }
 

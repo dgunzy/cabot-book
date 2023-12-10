@@ -100,8 +100,8 @@ public class BetController {
         }
     }
 
-    @PostMapping("/addbettouserapproved/{betDescription}/{kindeId}")
-    public ResponseEntity<String> addBetToUserApproved( @PathVariable String betDescription, @PathVariable String kindeId, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
+    @PostMapping("/addbettouserapproved/{betDescription}/{betHorse}/{kindeId}")
+    public ResponseEntity<String> addBetToUserApproved( @PathVariable String betDescription,@PathVariable String betHorse, @PathVariable String kindeId, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
         try {
             if(!Objects.equals(apiKey, AppConfig.getApiKey())) {
                 return ResponseEntity.status(401).body(null);
@@ -112,7 +112,7 @@ public class BetController {
         try {
             UserApp user = loadUserAppWithId(kindeId);
 
-            user.approvePendingBet(betDescription);
+            user.approvePendingBet(betDescription, betHorse);
 
             GlobalUserList.getInstance().addUserToGlobalList(user);
 
@@ -148,8 +148,8 @@ public class BetController {
             return ResponseEntity.status(500).body("Error Loading user");
         }
     }
-    @PostMapping("/winapprovedbet/{betDescription}/{kindeId}")
-    public ResponseEntity<String> winApprovedBet( @PathVariable String betDescription, @PathVariable String kindeId, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
+    @PostMapping("/winapprovedbet/{betDescription}/{betHorse}/{kindeId}")
+    public ResponseEntity<String> winApprovedBet( @PathVariable String betDescription,@PathVariable String betHorse, @PathVariable String kindeId, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
         try {
             if(!Objects.equals(apiKey, AppConfig.getApiKey())) {
                 return ResponseEntity.status(401).body(null);
@@ -160,10 +160,13 @@ public class BetController {
         try {
             UserApp user = loadUserAppWithId(kindeId);
 
-            user.winApprovedBet(betDescription);
+            user.winApprovedBet(betDescription, betHorse);
 
             GlobalUserList.getInstance().addUserToGlobalList(user);
 
+            User userToSave = user.databaseUserFromUserApp();
+
+            updateUser(userToSave);
 
             return ResponseEntity.status(200).body("Bet added to graded bets");
 
@@ -172,8 +175,8 @@ public class BetController {
         }
     }
 
-    @PostMapping("/loseapprovedbet/{betDescription}/{kindeId}")
-    public ResponseEntity<String> loseApprovedBet( @PathVariable String betDescription, @PathVariable String kindeId, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
+    @PostMapping("/loseapprovedbet/{betDescription}/{betHorse}/{kindeId}")
+    public ResponseEntity<String> loseApprovedBet( @PathVariable String betDescription, @PathVariable String betHorse,@PathVariable String kindeId, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
         try {
             if(!Objects.equals(apiKey, AppConfig.getApiKey())) {
                 return ResponseEntity.status(401).body(null);
@@ -184,9 +187,13 @@ public class BetController {
         try {
             UserApp user = loadUserAppWithId(kindeId);
 
-            user.loseApprovedBet(betDescription);
+            user.loseApprovedBet(betDescription, betHorse);
 
             GlobalUserList.getInstance().addUserToGlobalList(user);
+
+            User userToSave = user.databaseUserFromUserApp();
+
+            updateUser(userToSave);
 
             return ResponseEntity.status(200).body("Bet added to graded bets");
 

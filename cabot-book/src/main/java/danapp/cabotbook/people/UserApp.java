@@ -97,11 +97,11 @@ public class UserApp {
         pendingBets.add(newBet);
     }
 
-    public void approvePendingBet(String description) {
+    public void approvePendingBet(String description, String horse) {
         Iterator<PlacedBet> iterator = pendingBets.iterator();
         while (iterator.hasNext()) {
             PlacedBet placedBet = iterator.next();
-            if(Objects.equals(placedBet.getUniqueDescription(), description)) {
+            if(Objects.equals(placedBet.getUniqueDescription(), description) && Objects.equals(placedBet.getKey(), horse)) {
                 approvedBets.add(placedBet);
                 iterator.remove();
             }
@@ -118,11 +118,11 @@ public class UserApp {
             }
         }
     }
-    public void winApprovedBet(String description) throws JsonProcessingException {
+    public void winApprovedBet(String description, String horse) throws JsonProcessingException {
         Iterator<PlacedBet> iterator = approvedBets.iterator();
         while (iterator.hasNext()) {
             PlacedBet approvedBet = iterator.next();
-            if(Objects.equals(approvedBet.getUniqueDescription(), description)) {
+            if(Objects.equals(approvedBet.getUniqueDescription(), description) && Objects.equals(approvedBet.getKey(), horse)) {
                 this.balance += approvedBet.totalBookRisk();
                 approvedBet.setDidWin(true);
 
@@ -132,14 +132,14 @@ public class UserApp {
             }
         }
     }
-    public void loseApprovedBet(String description) throws JsonProcessingException {
+    public void loseApprovedBet(String description, String horse) throws JsonProcessingException {
         Iterator<PlacedBet> iterator = approvedBets.iterator();
         while (iterator.hasNext()) {
             PlacedBet approvedBet = iterator.next();
-            if(Objects.equals(approvedBet.getUniqueDescription(), description)) {
-                this.balance -= approvedBet.totalBookRisk();
+            if(Objects.equals(approvedBet.getUniqueDescription(), description) && Objects.equals(approvedBet.getKey(), horse)) {
+                this.balance -= approvedBet.getWager();
                 approvedBet.setDidWin(false);
-                this.transactionHistory.add("Your bet on " + approvedBet.getKey() + " lost. " + Math.round(approvedBet.totalBookRisk()) + " has been deducted from your account. Your balance is now " + this.balance);
+                this.transactionHistory.add("Your bet on " + approvedBet.getKey() + " lost. " + approvedBet.getWager() + " has been deducted from your account. Your balance is now " + this.balance);
                 iterator.remove();
             }
         }
