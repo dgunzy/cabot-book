@@ -1,11 +1,14 @@
 package danapp.cabotbook.bets;
 
+
+
 public class PlacedBet {
 
-    public PlacedBet(String key, Double odds, int wager) {
+    public PlacedBet(String key, Double odds, int wager, String uniqueDescription) {
         this.key = key;
         this.odds = odds;
         this.wager = wager;
+        this.uniqueDescription = uniqueDescription;
     }
 
     private String key;
@@ -13,6 +16,8 @@ public class PlacedBet {
     private Double odds = 0.0;
 
     private int wager = 0;
+
+    private String uniqueDescription;
 
     private boolean didWin = false;
 
@@ -28,7 +33,13 @@ public class PlacedBet {
         this.didWin = didWin;
     }
 
+    public String getUniqueDescription() {
+        return uniqueDescription;
+    }
 
+    public void setUniqueDescription(String uniqueDescription) {
+        this.uniqueDescription = uniqueDescription;
+    }
 
     public String getKey() {
         return key;
