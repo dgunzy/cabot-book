@@ -64,7 +64,6 @@ public class BetController {
 
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonBets = objectMapper.writeValueAsString(betsToShow);
-            System.out.println(jsonBets);
             return ResponseEntity.status(200).body(jsonBets);
 
         } catch (JsonProcessingException e) {
@@ -84,7 +83,6 @@ public class BetController {
 
         try {
             ArrayList<Bet> currentBets =  GlobalBetsList.getInstance().getCurrentBets();
-            System.out.println(betSubject);
             Iterator<Bet> iterator = currentBets.iterator();
             while (iterator.hasNext()) {
                 Bet currentBet = iterator.next();
@@ -278,6 +276,27 @@ public class BetController {
             return ResponseEntity.status(500).body("Error Loading user");
         }
     }
+
+    @PostMapping("/addbettobets/{betName}/{betWager}")
+    public ResponseEntity<String> addBetToBets(@RequestBody Bet bet, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
+        try {
+            if (!Objects.equals(apiKey, AppConfig.getApiKey())) {
+                return ResponseEntity.status(401).body("Unauthorized");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body("Bad request");
+        }
+        try {
+            if(checkIfBetNameExists(bet)) {
+                return ResponseEntity.status(500).body("Bet of that name already exists");
+            }
+            GlobalBetsList.getInstance().addBetToGlobalList(bet);
+            return ResponseEntity.ok().body("Bet added!");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error adding bet");
+        }
+    }
+
     public UserApp loadUserApp(UserRequestFromNode userRequestFromNode) {
         ArrayList<UserApp> globalUserLists = GlobalUserList.getInstance().getUsersOnApp();
         if(UserApp.doesUserExist(globalUserLists, userRequestFromNode.getId())) {
@@ -361,23 +380,5 @@ public class BetController {
         return false;
     }
 
-    @PostMapping("/addbettobets/{betName}/{betWager}")
-    public ResponseEntity<String> addBetToBets(@RequestBody Bet bet, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
-        try {
-            if (!Objects.equals(apiKey, AppConfig.getApiKey())) {
-                return ResponseEntity.status(401).body("Unauthorized");
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(400).body("Bad request");
-        }
-        try {
-            if(checkIfBetNameExists(bet)) {
-                return ResponseEntity.status(500).body("Bet of that name already exists");
-            }
-            GlobalBetsList.getInstance().addBetToGlobalList(bet);
-            return ResponseEntity.ok().body("Bet added!");
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error adding bet");
-        }
-    }
+
 }
