@@ -9,6 +9,8 @@ import java.util.List;
 
 @Document("user")
 public class User {
+
+    //Represents a user in the database for saving
     @Id
     private String id;
 

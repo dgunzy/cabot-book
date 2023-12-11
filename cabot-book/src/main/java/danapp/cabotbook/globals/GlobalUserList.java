@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 public class GlobalUserList {
+
+    //Global singleton list of users in memory
     private static GlobalUserList instance;
 
     private ArrayList<UserApp> usersOnApp;

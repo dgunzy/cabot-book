@@ -1,6 +1,7 @@
 package danapp.cabotbook.bets;
 
 public class OddsConverter {
+    //Handles conversion before sending and relieving data
     public static double decimalToAmerican(double decimalOdds) {
         if (decimalOdds >= 2.0) {
             return (int) Math.round((decimalOdds - 1) * 100);

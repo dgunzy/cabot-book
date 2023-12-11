@@ -10,6 +10,8 @@ import java.util.HashMap;
 
 
 public class Bet implements  Cloneable{
+
+    //Bet, which can be cloned
     public Bet(String name, ArrayList<BetOdds> betOdds) {
         this.name = name;
         this.betOdds = betOdds;

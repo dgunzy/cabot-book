@@ -3,7 +3,7 @@ package danapp.cabotbook.bets;
 
 
 public class PlacedBet {
-
+    //Represents a bet a user has placed
     public PlacedBet(String key, Double odds, int wager, String uniqueDescription) {
         this.key = key;
         this.odds = odds;

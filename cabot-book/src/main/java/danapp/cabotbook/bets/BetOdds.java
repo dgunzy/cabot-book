@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 public class BetOdds implements Cloneable {
 
+
+    //Represents one bet odds item
     @JsonProperty("horse")
     private String horse;
 

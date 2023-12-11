@@ -11,6 +11,8 @@ import java.util.Objects;
 
 public class UserApp {
 
+    //Represents a user in memory on the app
+
     public UserApp(String name, int balance, String kindeId, ArrayList<String> transactionHistory) {
         this.name = name;
         this.balance = balance;

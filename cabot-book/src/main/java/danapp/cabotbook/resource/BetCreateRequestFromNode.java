@@ -5,6 +5,7 @@ import java.util.SplittableRandom;
 
 public class BetCreateRequestFromNode {
 
+    //represents data class for a bet request from node
     private String name;
 
     private ArrayList<String> horse;

@@ -10,6 +10,8 @@ import java.util.Objects;
 
 public class GlobalBetsList {
 
+    //singleton design patter list of Bets that exist in memory
+
     private static GlobalBetsList instance;
 
     private ArrayList<Bet> currentBets;

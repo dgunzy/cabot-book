@@ -26,6 +26,8 @@ import java.util.Optional;
 @RestController
 public class UserController {
 
+    //This handles all the user actions
+
     private final UserRepository userRepository;
 
     public UserController(UserRepository userRepository) {
@@ -35,6 +37,7 @@ public class UserController {
 
 
 
+    // Gets all the users
     @GetMapping("/users")
     public ResponseEntity<String> getAllUsers( @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) throws JsonProcessingException {
         try {
@@ -59,9 +62,7 @@ public class UserController {
         }
     }
 
-
-
-
+    //updates the blance for a user
     @PostMapping("/updatebalance/{balance}/{kindeId}")
     public ResponseEntity<String> updateUserBalance(@RequestBody String jsonData, @PathVariable int balance,@PathVariable String kindeId,  @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) throws JsonProcessingException {
         try {
@@ -90,6 +91,8 @@ public class UserController {
         }
     }
 
+
+    //gets user by id (not used)
     @GetMapping("/users/{id}")
     public ResponseEntity getUserById(@PathVariable String id, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
         try {
@@ -108,6 +111,8 @@ public class UserController {
             return ResponseEntity.ok("The user with the id: " + id + " was not found.");
         }
     }
+
+    //Deletes user by id (not used)
     @DeleteMapping("/userdelete/{id}")
     public ResponseEntity deleteUserById(@PathVariable String id, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
         try {
@@ -129,6 +134,8 @@ public class UserController {
     }
 
 
+
+    //check if  a suer is present (not used)
     @PostMapping("/checkuser")
     public ResponseEntity<UserApp> checkUser(@RequestBody String jsonData, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
         try {
@@ -149,7 +156,7 @@ public class UserController {
         }
     }
 
-
+    // Load from memory, or from db,  or create a new user
     public UserApp loadUserApp(UserRequestFromNode userRequestFromNode) {
         ArrayList<UserApp> globalUserLists = GlobalUserList.getInstance().getUsersOnApp();
         if(UserApp.doesUserExist(globalUserLists, userRequestFromNode.getId())) {
@@ -186,6 +193,8 @@ public class UserController {
             }
         }
     }
+
+    //load user by kinde id
     public UserApp loadUserAppWithId(String kindeId) {
         ArrayList<UserApp> globalUserList = GlobalUserList.getInstance().getUsersOnApp();
 
@@ -210,6 +219,7 @@ public class UserController {
     }
 
 
+    //saves user to db
     public void updateUser(User userWithUpdate) {
         User userToUpdate = userRepository.findByKindeId(userWithUpdate.getKindeId())
                 .orElseThrow(() -> new RuntimeException("User not found"));

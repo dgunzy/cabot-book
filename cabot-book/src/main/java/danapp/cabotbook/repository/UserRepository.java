@@ -9,5 +9,7 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends MongoRepository<User, String> {
+
+    //Interface for db actions
     Optional<User> findByKindeId(String kindeId);
 }

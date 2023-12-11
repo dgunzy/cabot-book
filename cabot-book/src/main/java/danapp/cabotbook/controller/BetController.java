@@ -27,10 +27,14 @@ import java.util.Optional;
 
 @RestController
 public class BetController {
+
+    //This class manages all the routes that involves creating and managing bets
     private final UserRepository userRepository;
 
     public BetController(UserRepository userRepository) {this.userRepository = userRepository;};
 
+
+    //Gets all the bets
     @PostMapping("/getbets")
     public ResponseEntity<String> getBets(@RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
         try {
@@ -71,6 +75,7 @@ public class BetController {
         }
     }
 
+    //Alters a bet
     @PostMapping("/changebet/{betDescription}/{betSubject}/{odds}")
     public ResponseEntity<String> changeBet(@PathVariable String betSubject, @PathVariable String betDescription,  @PathVariable double odds, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
         try {
@@ -102,6 +107,7 @@ public class BetController {
         }
     }
 
+    //Deletes a bet based on description
     @PostMapping("/deletebet/{betDescription}")
     public ResponseEntity<String> deleteBet(@PathVariable String betDescription, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
         try {
@@ -120,7 +126,7 @@ public class BetController {
         }
     }
 
-
+    //Addes a new bet
     @PostMapping("/addbet")
     public ResponseEntity<String> addBet(@RequestBody BetCreateRequestFromNode betRequest, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
         try {
@@ -149,6 +155,8 @@ public class BetController {
         }
     }
 
+
+    //Adds a new bet to the users pending bets
     @PostMapping("/addbettouserpending/{betSubject}/{betDescription}/{wager}/{odds}")
     public ResponseEntity<String> addBetToUserPending(@PathVariable String betSubject, @PathVariable String betDescription, @PathVariable int wager, @PathVariable double odds, @RequestBody String jsonData, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
         try {
@@ -175,6 +183,8 @@ public class BetController {
         }
     }
 
+
+    //Approves the pending bet, user can no longer alter it
     @PostMapping("/addbettouserapproved/{betDescription}/{betHorse}/{kindeId}")
     public ResponseEntity<String> addBetToUserApproved( @PathVariable String betDescription,@PathVariable String betHorse, @PathVariable String kindeId, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
         try {
@@ -199,7 +209,7 @@ public class BetController {
         }
     }
 
-
+    //denys pending bet, removing it from user
     @PostMapping("/denypendingbet/{betDescription}/{betHorse}/{kindeId}")
     public ResponseEntity<String> denyPendingBet( @PathVariable String betDescription,@PathVariable String betHorse, @PathVariable String kindeId, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
         try {
@@ -223,6 +233,8 @@ public class BetController {
             return ResponseEntity.status(500).body("Error Loading user");
         }
     }
+
+    //wins an approved bet, updates balance and saves
     @PostMapping("/winapprovedbet/{betDescription}/{betHorse}/{kindeId}")
     public ResponseEntity<String> winApprovedBet( @PathVariable String betDescription,@PathVariable String betHorse, @PathVariable String kindeId, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
         try {
@@ -250,6 +262,8 @@ public class BetController {
         }
     }
 
+
+    //Loses an approved bet, updates balance and save
     @PostMapping("/loseapprovedbet/{betDescription}/{betHorse}/{kindeId}")
     public ResponseEntity<String> loseApprovedBet( @PathVariable String betDescription, @PathVariable String betHorse,@PathVariable String kindeId, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
         try {
@@ -277,26 +291,7 @@ public class BetController {
         }
     }
 
-    @PostMapping("/addbettobets/{betName}/{betWager}")
-    public ResponseEntity<String> addBetToBets(@RequestBody Bet bet, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
-        try {
-            if (!Objects.equals(apiKey, AppConfig.getApiKey())) {
-                return ResponseEntity.status(401).body("Unauthorized");
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(400).body("Bad request");
-        }
-        try {
-            if(checkIfBetNameExists(bet)) {
-                return ResponseEntity.status(500).body("Bet of that name already exists");
-            }
-            GlobalBetsList.getInstance().addBetToGlobalList(bet);
-            return ResponseEntity.ok().body("Bet added!");
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error adding bet");
-        }
-    }
-
+    //Method to either load the user from the singleton list, or from the database, or create a new user
     public UserApp loadUserApp(UserRequestFromNode userRequestFromNode) {
         ArrayList<UserApp> globalUserLists = GlobalUserList.getInstance().getUsersOnApp();
         if(UserApp.doesUserExist(globalUserLists, userRequestFromNode.getId())) {
@@ -333,6 +328,9 @@ public class BetController {
             }
         }
     }
+
+
+    //Method to load a user by id
     public UserApp loadUserAppWithId(String kindeId) {
         ArrayList<UserApp> globalUserList = GlobalUserList.getInstance().getUsersOnApp();
 
@@ -357,6 +355,8 @@ public class BetController {
     }
 
 
+
+    //method to save a user
     public void updateUser(User userWithUpdate) {
         User userToUpdate = userRepository.findByKindeId(userWithUpdate.getKindeId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -366,6 +366,7 @@ public class BetController {
 
     }
 
+    //Method to make sure a bet exists
     public boolean checkIfBetNameExists(Bet bet) {
 
         ArrayList<Bet> currentBets =  GlobalBetsList.getInstance().getCurrentBets();

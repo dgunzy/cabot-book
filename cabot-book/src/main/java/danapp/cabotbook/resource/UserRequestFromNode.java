@@ -2,9 +2,7 @@ package danapp.cabotbook.resource;
 
 public class UserRequestFromNode {
 
-    //This contains the terms to search by
-
-
+    //Represents a user data from node
 
     private String id;
 

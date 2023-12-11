@@ -4,6 +4,8 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class AppConfig {
+
+    //handles loading api key from application properties
     private static final Properties properties = new Properties();
 
     static {
