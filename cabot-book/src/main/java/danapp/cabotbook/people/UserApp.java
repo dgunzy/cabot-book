@@ -126,7 +126,7 @@ public class UserApp {
                 this.balance += approvedBet.totalBookRisk();
                 approvedBet.setDidWin(true);
 
-                this.transactionHistory.add("Your bet on " + approvedBet.getKey() + " won! You have been credited with " + Math.round(approvedBet.totalBookRisk()) + ". Your balance is now " + this.balance);
+                this.transactionHistory.add("Your bet on " + approvedBet.getKey() + " for the bet named:  " + approvedBet.getUniqueDescription() +  "won! You have been credited with your wager back of " + approvedBet.getWager()+ " and you profited" + Math.round(approvedBet.totalBookRisk() - approvedBet.getWager())  + ". Your balance is now " + this.balance);
 
                 iterator.remove();
             }
@@ -139,7 +139,7 @@ public class UserApp {
             if(Objects.equals(approvedBet.getUniqueDescription(), description) && Objects.equals(approvedBet.getKey(), horse)) {
                 this.balance -= approvedBet.getWager();
                 approvedBet.setDidWin(false);
-                this.transactionHistory.add("Your bet on " + approvedBet.getKey() + " lost. " + approvedBet.getWager() + " has been deducted from your account. Your balance is now " + this.balance);
+                this.transactionHistory.add("Your bet on " + approvedBet.getKey() + " for the bet named: " + approvedBet.getUniqueDescription() + " lost. " + approvedBet.getWager() + " has been deducted from your account. Your balance is now " + this.balance);
                 iterator.remove();
             }
         }

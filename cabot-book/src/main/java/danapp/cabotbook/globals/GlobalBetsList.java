@@ -31,6 +31,13 @@ public class GlobalBetsList {
 
     public void addBetToGlobalList(Bet bet) {currentBets.add(bet);
     }
+    public void clearAllBets() {
+        currentBets.clear();
+    }
+
+    public void setCurrentBets(ArrayList<Bet> currentBets) {
+        this.currentBets = currentBets;
+    }
 
     public void removeBetFromGlobalList(String name) {
         Iterator<Bet> iterator = currentBets.iterator();
@@ -42,4 +49,6 @@ public class GlobalBetsList {
             }
         }
     }
+
+
 }

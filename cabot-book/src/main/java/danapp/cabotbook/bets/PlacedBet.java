@@ -22,7 +22,7 @@ public class PlacedBet {
     private boolean didWin = false;
 
     public int totalBookRisk() {
-        return (int) (wager*odds);
+        return (int) (wager* OddsConverter.americanToDecimal(odds));
     }
 
     public boolean isDidWin() {

@@ -6,12 +6,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import danapp.cabotbook.Auth.AppConfig;
 import danapp.cabotbook.bets.Bet;
 import danapp.cabotbook.bets.BetOdds;
+import danapp.cabotbook.bets.OddsConverter;
 import danapp.cabotbook.bets.PlacedBet;
 import danapp.cabotbook.globals.GlobalBetsList;
 import danapp.cabotbook.globals.GlobalUserList;
 import danapp.cabotbook.model.User;
 import danapp.cabotbook.people.UserApp;
 import danapp.cabotbook.repository.UserRepository;
+import danapp.cabotbook.resource.BetCreateRequestFromNode;
 import danapp.cabotbook.resource.UserRequestFromNode;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpHeaders;
@@ -41,10 +43,28 @@ public class BetController {
         try {
 
             ArrayList<Bet> currentBets = GlobalBetsList.getInstance().getCurrentBets();
-            ObjectMapper objectMapper = new ObjectMapper();
-            String jsonBets = objectMapper.writeValueAsString(currentBets);
-            System.out.println(jsonBets);
 
+            ArrayList<Bet> betsToShow = new ArrayList<>();
+
+            for(Bet currentBet : currentBets) {
+                betsToShow.add(currentBet.clone());
+            }
+
+            for (int i = 0; i < betsToShow.size(); i++) {
+                Bet clonedBet = betsToShow.get(i).clone();
+                betsToShow.set(i, clonedBet);
+
+                for (int j = 0; j < clonedBet.getBetOdds().size(); j++) {
+                    double originalOdds = clonedBet.getBetOdds().get(j).getOdds();
+                    double americanOdds = OddsConverter.decimalToAmerican(originalOdds);
+                    clonedBet.getBetOdds().get(j).setOdds(americanOdds);
+                }
+            }
+
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonBets = objectMapper.writeValueAsString(betsToShow);
+            System.out.println(jsonBets);
             return ResponseEntity.status(200).body(jsonBets);
 
         } catch (JsonProcessingException e) {
@@ -52,10 +72,59 @@ public class BetController {
         }
     }
 
+    @PostMapping("/changebet/{betDescription}/{betSubject}/{odds}")
+    public ResponseEntity<String> changeBet(@PathVariable String betSubject, @PathVariable String betDescription,  @PathVariable double odds, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
+        try {
+            if (!Objects.equals(apiKey, AppConfig.getApiKey())) {
+                return ResponseEntity.status(401).body(null);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(null);
+        }
+
+        try {
+            ArrayList<Bet> currentBets =  GlobalBetsList.getInstance().getCurrentBets();
+            System.out.println(betSubject);
+            Iterator<Bet> iterator = currentBets.iterator();
+            while (iterator.hasNext()) {
+                Bet currentBet = iterator.next();
+                if(Objects.equals(currentBet.getName(), betDescription)) {
+                    for (int i = 0; i < currentBet.getBetOdds().size(); i++) {
+                        if(Objects.equals(currentBet.getBetOdds().get(i).getHorse(), betSubject)) {
+                            currentBet.getBetOdds().get(i).setOdds(OddsConverter.americanToDecimal(odds));
+                            return ResponseEntity.status(200).body("Odds updated successfully");
+                        }
+                    }
+                    return ResponseEntity.status(404).body("Bet odds not found with that horse");
+                }
+            }
+            return ResponseEntity.status(404).body("Bet not found with that description");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+    @PostMapping("/deletebet/{betDescription}")
+    public ResponseEntity<String> deleteBet(@PathVariable String betDescription, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
+        try {
+            if (!Objects.equals(apiKey, AppConfig.getApiKey())) {
+                return ResponseEntity.status(401).body(null);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(null);
+        }
+
+        try {
+            GlobalBetsList.getInstance().removeBetFromGlobalList(betDescription);
+            return ResponseEntity.status(200).body("Successfully deleted bet");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
 
 
     @PostMapping("/addbet")
-    public ResponseEntity<String> addBet(@RequestBody Bet bet, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
+    public ResponseEntity<String> addBet(@RequestBody BetCreateRequestFromNode betRequest, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
         try {
             if (!Objects.equals(apiKey, AppConfig.getApiKey())) {
                 return ResponseEntity.status(401).body("Unauthorized");
@@ -64,10 +133,18 @@ public class BetController {
             return ResponseEntity.status(400).body("Bad request");
         }
         try {
-            if(checkIfBetNameExists(bet)) {
+
+            ArrayList<BetOdds> oddAndHorses = new ArrayList<BetOdds>();
+            for(int i = 0; i < betRequest.getHorse().size(); i++ ) {
+                BetOdds betOddsToAdd = new BetOdds(betRequest.getHorse().get(i), OddsConverter.americanToDecimal(betRequest.getOdds().get(i)) );
+                oddAndHorses.add(betOddsToAdd);
+            }
+            Bet newBet = new Bet(betRequest.getName(), oddAndHorses);
+
+            if(checkIfBetNameExists(newBet)) {
                 return ResponseEntity.status(500).body("Bet of that name already exists");
             }
-            GlobalBetsList.getInstance().addBetToGlobalList(bet);
+            GlobalBetsList.getInstance().addBetToGlobalList(newBet);
             return ResponseEntity.ok().body("Bet added!");
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error adding bet");

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 
 
-public class BetOdds {
+public class BetOdds implements Cloneable {
 
     @JsonProperty("horse")
     private String horse;
@@ -32,5 +32,14 @@ public class BetOdds {
 
     public void setOdds(double odds) {
         this.odds = odds;
+    }
+
+    @Override
+    public BetOdds clone() {
+        try {
+            return (BetOdds) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

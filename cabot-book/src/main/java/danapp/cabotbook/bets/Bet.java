@@ -9,7 +9,7 @@ import java.util.HashMap;
 
 
 
-public class Bet {
+public class Bet implements  Cloneable{
     public Bet(String name, ArrayList<BetOdds> betOdds) {
         this.name = name;
         this.betOdds = betOdds;
@@ -22,8 +22,29 @@ public class Bet {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private ArrayList<BetOdds> betOdds;
 
+    @Override
+    public Bet clone() {
+        try {
+            Bet clonedBet = (Bet) super.clone();
+
+            if (betOdds != null) {
+                clonedBet.betOdds = new ArrayList<>();
+                for (BetOdds betOdd : betOdds) {
+                    clonedBet.betOdds.add(betOdd.clone());
+                }
+            }
+
+            return clonedBet;
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
     public String getName() {
         return name;
+    }
+
+    public void clearOdds() {
+        this.betOdds.clear();
     }
 
     public void setName(String name) {
