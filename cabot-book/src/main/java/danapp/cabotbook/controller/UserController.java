@@ -49,12 +49,10 @@ public class UserController {
         }
         ArrayList<UserApp> globalUserLists = GlobalUserList.getInstance().getUsersOnApp();
 
-        System.out.println(globalUserLists.size());
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonUsers = objectMapper.writeValueAsString(globalUserLists);
-            System.out.println(jsonUsers);
 
             return ResponseEntity.status(200).body(jsonUsers);
         } catch (Exception e) {

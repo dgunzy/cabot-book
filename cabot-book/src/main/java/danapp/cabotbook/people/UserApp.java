@@ -99,50 +99,53 @@ public class UserApp {
         pendingBets.add(newBet);
     }
 
-    public void approvePendingBet(String description, String horse) {
+    public void approvePendingBet(String description, String horse, int wager) {
         Iterator<PlacedBet> iterator = pendingBets.iterator();
         while (iterator.hasNext()) {
             PlacedBet placedBet = iterator.next();
-            if(Objects.equals(placedBet.getUniqueDescription(), description) && Objects.equals(placedBet.getKey(), horse)) {
+            if(Objects.equals(placedBet.getUniqueDescription(), description) && Objects.equals(placedBet.getKey(), horse) && Objects.equals(placedBet.getWager(), wager)) {
                 approvedBets.add(placedBet);
                 iterator.remove();
+                return;
             }
         }
     }
 
-    public void denyPendingBet(String description, String horse) {
+    public void denyPendingBet(String description, String horse, int wager) {
         Iterator<PlacedBet> iterator = pendingBets.iterator();
         while (iterator.hasNext()) {
             PlacedBet placedBet = iterator.next();
-            if(Objects.equals(placedBet.getUniqueDescription(), description) && Objects.equals(placedBet.getKey(), horse)) {
+            if(Objects.equals(placedBet.getUniqueDescription(), description) && Objects.equals(placedBet.getKey(), horse) && Objects.equals(placedBet.getWager(), wager)) {
                 this.balance += placedBet.getWager();
                 iterator.remove();
+                return;
             }
         }
     }
-    public void winApprovedBet(String description, String horse) throws JsonProcessingException {
+    public void winApprovedBet(String description, String horse, int wager)  {
         Iterator<PlacedBet> iterator = approvedBets.iterator();
         while (iterator.hasNext()) {
             PlacedBet approvedBet = iterator.next();
-            if(Objects.equals(approvedBet.getUniqueDescription(), description) && Objects.equals(approvedBet.getKey(), horse)) {
+            if(Objects.equals(approvedBet.getUniqueDescription(), description) && Objects.equals(approvedBet.getKey(), horse) && Objects.equals(approvedBet.getWager(), wager)) {
                 this.balance += approvedBet.totalBookRisk();
                 approvedBet.setDidWin(true);
 
                 this.transactionHistory.add("Your bet on " + approvedBet.getKey() + " for the bet named:  " + approvedBet.getUniqueDescription() +  "won! You have been credited with your wager back of " + approvedBet.getWager()+ " and you profited" + Math.round(approvedBet.totalBookRisk() - approvedBet.getWager())  + ". Your balance is now " + this.balance);
 
                 iterator.remove();
+                return;
             }
         }
     }
-    public void loseApprovedBet(String description, String horse) throws JsonProcessingException {
+    public void loseApprovedBet(String description, String horse, int wager) {
         Iterator<PlacedBet> iterator = approvedBets.iterator();
         while (iterator.hasNext()) {
             PlacedBet approvedBet = iterator.next();
-            if(Objects.equals(approvedBet.getUniqueDescription(), description) && Objects.equals(approvedBet.getKey(), horse)) {
-                this.balance -= approvedBet.getWager();
+            if(Objects.equals(approvedBet.getUniqueDescription(), description) && Objects.equals(approvedBet.getKey(), horse) && Objects.equals(approvedBet.getWager(), wager)) {
                 approvedBet.setDidWin(false);
                 this.transactionHistory.add("Your bet on " + approvedBet.getKey() + " for the bet named: " + approvedBet.getUniqueDescription() + " lost. " + approvedBet.getWager() + " has been deducted from your account. Your balance is now " + this.balance);
                 iterator.remove();
+                return;
             }
         }
     }
