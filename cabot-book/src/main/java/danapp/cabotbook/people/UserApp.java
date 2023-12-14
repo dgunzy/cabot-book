@@ -2,6 +2,7 @@ package danapp.cabotbook.people;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import danapp.cabotbook.bets.OddsConverter;
 import danapp.cabotbook.bets.PlacedBet;
 import danapp.cabotbook.model.User;
 
@@ -81,7 +82,6 @@ public class UserApp {
             System.out.println(approvedBet.getKey() + approvedBet.getWager());
         }
     }
-
 
     public ArrayList<PlacedBet> getPendingBets() {
         return pendingBets;

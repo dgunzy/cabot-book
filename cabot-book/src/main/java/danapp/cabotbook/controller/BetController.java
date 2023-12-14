@@ -158,7 +158,7 @@ public class BetController {
 
     //Adds a new bet to the users pending bets
     @PostMapping("/addbettouserpending/{betSubject}/{betDescription}/{wager}/{odds}")
-    public ResponseEntity<String> addBetToUserPending(@PathVariable String betSubject, @PathVariable String betDescription, @PathVariable int wager, @PathVariable double odds, @RequestBody String jsonData, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
+    public ResponseEntity<String> addBetToUserPending(@PathVariable String betSubject, @PathVariable String betDescription, @PathVariable int wager, @PathVariable int odds, @RequestBody String jsonData, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
         try {
             if(!Objects.equals(apiKey, AppConfig.getApiKey())) {
                 return ResponseEntity.status(401).body(null);
@@ -171,7 +171,7 @@ public class BetController {
             UserRequestFromNode userRequestFromNode = objectMapper.readValue(jsonData, UserRequestFromNode.class);
 
             UserApp user = loadUserApp(userRequestFromNode);
-            user.addBetToPending(betSubject.toLowerCase(), odds, wager, betDescription.toLowerCase());
+            user.addBetToPending(betSubject.toLowerCase(), (double) odds, wager, betDescription.toLowerCase());
 
             GlobalUserList.getInstance().addUserToGlobalList(user);
 
@@ -179,6 +179,7 @@ public class BetController {
             return ResponseEntity.status(200).body("Bet added to user");
 
         } catch (JsonProcessingException e) {
+            System.out.println(e);
             return ResponseEntity.status(500).body("Error getting bets");
         }
     }

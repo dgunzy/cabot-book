@@ -148,6 +148,8 @@ public class UserController {
             UserRequestFromNode userRequestFromNode = objectMapper.readValue(jsonData, UserRequestFromNode.class);
 
             UserApp user = loadUserApp(userRequestFromNode);
+
+            UserApp userToShow = new UserApp();
             return ResponseEntity.status(201).body(user);
         } catch (JsonProcessingException e) {
             return ResponseEntity.status(400).body(null);
