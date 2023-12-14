@@ -185,8 +185,8 @@ public class BetController {
 
 
     //Approves the pending bet, user can no longer alter it
-    @PostMapping("/addbettouserapproved/{betDescription}/{betHorse}/{kindeId}")
-    public ResponseEntity<String> addBetToUserApproved( @PathVariable String betDescription,@PathVariable String betHorse, @PathVariable String kindeId, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
+    @PostMapping("/addbettouserapproved/{betDescription}/{betHorse}/{kindeId}/{wager}")
+    public ResponseEntity<String> addBetToUserApproved( @PathVariable String betDescription,@PathVariable String betHorse, @PathVariable String kindeId, @PathVariable int wager, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
         try {
             if(!Objects.equals(apiKey, AppConfig.getApiKey())) {
                 return ResponseEntity.status(401).body(null);
@@ -197,10 +197,9 @@ public class BetController {
         try {
             UserApp user = loadUserAppWithId(kindeId);
 
-            user.approvePendingBet(betDescription, betHorse);
+            user.approvePendingBet(betDescription, betHorse, wager);
 
             GlobalUserList.getInstance().addUserToGlobalList(user);
-
 
             return ResponseEntity.status(200).body("Bet approved to user");
 
@@ -210,8 +209,8 @@ public class BetController {
     }
 
     //denys pending bet, removing it from user
-    @PostMapping("/denypendingbet/{betDescription}/{betHorse}/{kindeId}")
-    public ResponseEntity<String> denyPendingBet( @PathVariable String betDescription,@PathVariable String betHorse, @PathVariable String kindeId, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
+    @PostMapping("/denypendingbet/{betDescription}/{betHorse}/{kindeId}/{wager}")
+    public ResponseEntity<String> denyPendingBet( @PathVariable String betDescription,@PathVariable String betHorse, @PathVariable String kindeId, @PathVariable int wager, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
         try {
             if(!Objects.equals(apiKey, AppConfig.getApiKey())) {
                 return ResponseEntity.status(401).body(null);
@@ -223,7 +222,7 @@ public class BetController {
 
             UserApp user = loadUserAppWithId(kindeId);
 
-            user.denyPendingBet(betDescription, betHorse);
+            user.denyPendingBet(betDescription, betHorse, wager);
 
             GlobalUserList.getInstance().addUserToGlobalList(user);
 
@@ -235,8 +234,8 @@ public class BetController {
     }
 
     //wins an approved bet, updates balance and saves
-    @PostMapping("/winapprovedbet/{betDescription}/{betHorse}/{kindeId}")
-    public ResponseEntity<String> winApprovedBet( @PathVariable String betDescription,@PathVariable String betHorse, @PathVariable String kindeId, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
+    @PostMapping("/winapprovedbet/{betDescription}/{betHorse}/{kindeId}/{wager}")
+    public ResponseEntity<String> winApprovedBet( @PathVariable String betDescription,@PathVariable String betHorse, @PathVariable String kindeId, @PathVariable int wager, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
         try {
             if(!Objects.equals(apiKey, AppConfig.getApiKey())) {
                 return ResponseEntity.status(401).body(null);
@@ -247,7 +246,7 @@ public class BetController {
         try {
             UserApp user = loadUserAppWithId(kindeId);
 
-            user.winApprovedBet(betDescription, betHorse);
+            user.winApprovedBet(betDescription, betHorse, wager);
 
             GlobalUserList.getInstance().addUserToGlobalList(user);
 
@@ -264,8 +263,8 @@ public class BetController {
 
 
     //Loses an approved bet, updates balance and save
-    @PostMapping("/loseapprovedbet/{betDescription}/{betHorse}/{kindeId}")
-    public ResponseEntity<String> loseApprovedBet( @PathVariable String betDescription, @PathVariable String betHorse,@PathVariable String kindeId, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
+    @PostMapping("/loseapprovedbet/{betDescription}/{betHorse}/{kindeId}/{wager}")
+    public ResponseEntity<String> loseApprovedBet( @PathVariable String betDescription, @PathVariable String betHorse,@PathVariable String kindeId, @PathVariable int wager, @RequestHeader(HttpHeaders.AUTHORIZATION) String apiKey) {
         try {
             if(!Objects.equals(apiKey, AppConfig.getApiKey())) {
                 return ResponseEntity.status(401).body(null);
@@ -276,7 +275,7 @@ public class BetController {
         try {
             UserApp user = loadUserAppWithId(kindeId);
 
-            user.loseApprovedBet(betDescription, betHorse);
+            user.loseApprovedBet(betDescription, betHorse, wager);
 
             GlobalUserList.getInstance().addUserToGlobalList(user);
 
